@@ -55,4 +55,96 @@ class Maze():
         self.height = len(contents)
         self.width = max(len(line) for line in contents)
 
+        # Keep track of walls
+        self.walls = []
+        for i in range(self.height):
+            row = []
+            for j in range(self.width):
+                try:
+                    if contents[i][j] == "A":
+                        self.start = (i, j)
+                        row.append(False)
+                    elif contents[i][j] == "B":
+                        self.goal = (i, j)
+                        row.append(False)
+                    elif contents[i][j] == " ":
+                        row.append(False)
+                    else:
+                        row.append(True)
+                except IndexError:
+                    row.append(False)
+            self.walls.append(row)
+
+        self.solution = None
+
+
+    def print(self):
+        solution = self.solution[1] if self.solution is not None else None
+        print()
+
+        for i in enumerate(self.walls):
+            for j, col in enumerate(row):
+                if col:
+                    print("F", end="")
+                elif (i, j) == self.start:
+                    print("A", end="")
+                elif (i, j) == self.goal:
+                    print("B", end="")
+                elif solution is not None and (i, j) in solution:
+                    print("*", end="")
+                else:
+                    print(" ", end="")
+            print()
+        print()
+
+    def neighbors(self, state):
+        row, col = state
+
+        # All possible actions
+        candidates = [
+            ("up", (row - 1, col)),
+            ("down", (row + 1, col)),
+            ("left", (row, col - 1)),
+            ("right", (row, col + 1))
+        ]
+
+        # Ensure actions are valid
+        result = []
+        for action, (r, c) in candidates:
+            try:
+                if not self.walls[r][c]:
+                    result.append((action, (r, c)))
+            except IndexError:
+                continue
+        return result
+
+    def solve(self):
+        """Finds a solution to the maze, if one exists"""
+
+        # Keep track of number of states explored
+        self.num_explored = 0
+
+        # Initialize frontier to just the starting position
+        start = Node(state=self.start, parent=None, actions=None)
+        frontier = StackFrontier()
+        frontier.add(start)
+
+        # Initialize an empty explored set
+        self.explored = set()
+
+        # Keep looping until solutoin found
+        while True:
+
+        # If nothing left in frontier, then no path
+        if frontier.empty():
+            raise Exception("no solution")
+
+        # Choose a node from the frontier
+        node = frontier.remove()
+        self.num_explored += 1
+
+        # If node is the goal, then we have a solution
+        if node.state == self.goal:
+            actions = []
+
 
